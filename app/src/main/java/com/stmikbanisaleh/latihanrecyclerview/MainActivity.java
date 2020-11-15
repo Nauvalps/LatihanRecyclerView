@@ -70,9 +70,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (textNama.getText().toString().isEmpty() || textKompetensi.getText().toString().isEmpty()) {
-                    adapter.notifyDataSetChanged();
-                    dialog.dismiss();
+                if (textNama.getText().toString().isEmpty()) {
+                    textNama.requestFocus();
+                    textNama.setError("Nama dosen tidak boleh kosong");
+                }else if (textKompetensi.getText().toString().isEmpty()){
+                    textKompetensi.requestFocus();
+                    textKompetensi.setError("Kompetensi dosen tidak boleh kosong");
                 }else{
                     processSave();
                 }
