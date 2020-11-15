@@ -1,31 +1,136 @@
 package com.stmikbanisaleh.latihanrecyclerview;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private RecyclerView recyclerView = null;
     private List<Dosen> list = new ArrayList<>();
     private DosenAdapter adapter = null;
+
+    private DosenDao dao = null;
+    private View viewDialog = null;
+    private EditText textNama, textKompetensi;
+    private CheckBox checkboxStatus;
+    private Button btnSave, btnCancel, btnDelete;
+    private AlertDialog dialog = null;
+    private Dosen dosen = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = findViewById(R.id.recyclerview);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new DosenAdapter(this, Dosen.initData());
+        dao = AppDatabase.getDatabase(this).dosenDao();
+        list = dao.getAll();
+        adapter = new DosenAdapter(this, list, this);
         recyclerView.setAdapter(adapter);
+        setupDialog();
+    }
+
+    private void setupDialog() {
+        viewDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout, null);
+        textNama = viewDialog.findViewById(R.id.editTextNama);
+        textKompetensi = viewDialog.findViewById(R.id.editTextKompetensi);
+        checkboxStatus = viewDialog.findViewById(R.id.checkboxStatus);
+        btnSave = viewDialog.findViewById(R.id.btnSave);
+        btnDelete = viewDialog.findViewById(R.id.btnDelete);
+        btnCancel = viewDialog.findViewById(R.id.btnCancel);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Dosen Detail");
+        builder.setView(viewDialog);
+        dialog = builder.create();
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (textNama.getText().toString().isEmpty() || textKompetensi.getText().toString().isEmpty()) {
+                    adapter.notifyDataSetChanged();
+                    dialog.dismiss();
+                }else{
+                    processSave();
+                }
+
+            }
+        });
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                processDelete();
+            }
+        });
+    }
+
+    private void showDialog() {
+        textNama.setText(dosen.getNama());
+        textKompetensi.setText(dosen.getKompetensi());
+        checkboxStatus.setChecked(dosen.isStatus());
+        dialog.show();
+    }
+
+    private void processSave() {
+        dosen.setNama(textNama.getText().toString());
+        dosen.setKompetensi(textKompetensi.getText().toString());
+        dosen.setStatus(checkboxStatus.isChecked());
+        try {
+            if (dosen.getId() > 0) {
+                dao.update(dosen);
+            }else {
+                long id = dao.insert(dosen);
+                dosen.setId((int) id);
+                list.add(0, dosen);
+            }
+            adapter.notifyDataSetChanged();
+            dialog.dismiss();
+
+            Toast.makeText(this, "Data dosen berhasil disimpan", Toast.LENGTH_SHORT).show();
+        }catch (Exception ex) {
+            Toast.makeText(this, "Data dosen gagal disimpan", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void processDelete() {
+        try {
+            list.remove(dosen);
+            adapter.notifyDataSetChanged();
+            dialog.dismiss();
+            Toast.makeText(this, "Data dosen berhasil dihapus", Toast.LENGTH_SHORT).show();
+        }catch (Exception ex) {
+            Toast.makeText(this, "Data dosen gagal dihapus", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void buttonAddClick(View view) {
+        dosen = new Dosen();
+        dosen.setId(0);
+        btnDelete.setVisibility(View.INVISIBLE);
+        showDialog();
     }
 
     @Override
@@ -49,5 +154,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return true;
+    }
+
+    public void onClick(View view) {
+        int position = recyclerView.getChildAdapterPosition(view);
+        dosen = list.get(position);
+        btnDelete.setVisibility(View.VISIBLE);
+        showDialog();
     }
 }

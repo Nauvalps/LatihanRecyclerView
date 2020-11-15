@@ -25,8 +25,9 @@ public class DosenAdapter extends RecyclerView.Adapter<DosenAdapter.DosenviewHol
     private List<Dosen> list = new ArrayList<>();
     private List<Dosen> listSelected = new ArrayList<>();
     private Map<String, String> initialColor = new HashMap<>();
+    private View.OnClickListener listener;
 
-    public DosenAdapter(Context context, List<Dosen> list) {
+    public DosenAdapter(Context context, List<Dosen> list, View.OnClickListener onClickListener) {
         this.context = context;
         this.list = list;
         this.listSelected = list;
@@ -43,6 +44,7 @@ public class DosenAdapter extends RecyclerView.Adapter<DosenAdapter.DosenviewHol
     @Override
     public DosenviewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_layout, parent, false);
+        view.setOnClickListener(listener);
         DosenviewHolder holder = new DosenviewHolder(view);
         return holder;
     }

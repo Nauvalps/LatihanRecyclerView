@@ -1,12 +1,24 @@
 package com.stmikbanisaleh.latihanrecyclerview;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dosen {
+@Entity
+public class Dosen implements Cloneable {
+    @PrimaryKey(autoGenerate = true)
     private int id;
+
+    @ColumnInfo(name = "nama")
     private String nama;
+
+    @ColumnInfo(name = "kompetensi")
     private String kompetensi;
+
+    @ColumnInfo(name = "status")
     private boolean status;
 
     public Dosen() {
@@ -51,20 +63,7 @@ public class Dosen {
         this.status = status;
     }
 
-    public static List<Dosen> initData() {
-        List<Dosen> dosenList = new ArrayList<>();
-        dosenList.add(new Dosen(1, "Nauval Purnomo Sidi S.Kom", "IT Literature, Programming Literature", true));
-        dosenList.add(new Dosen(2, "Drs. Taufik Maulana, MBA ", "Statistic, Data Analysis", true));
-        dosenList.add(new Dosen(3, "Suhadi", "Sistem Cerdas,Data Mining", true));
-        dosenList.add(new Dosen(4, "Hudi Kusuma S.Kom, M.Kom", "Artificial Intelligent, Big Data", true));
-        dosenList.add(new Dosen(5, "Rudi Budi Agung, S.Kom, M.Si", "SAP Specialist, System Architecture", true));
-        dosenList.add(new Dosen(6, "Subandri S.Kom, M.Kom", "IT Infrastructure, Networking", true));
-        dosenList.add(new Dosen(7, "Hendra Setiawan S.Kom, M.Kom", "Web Design, Information System", true));
-        dosenList.add(new Dosen(8, "Ndaru Ruseno S.Kom, M.Kom", "Human Computer Interaction", true));
-        dosenList.add(new Dosen(9, "Soelistyowati, Ir, Msc", "Statistic, Data Analysis", true));
-        dosenList.add(new Dosen(10, "Sjaeful Irwan Drs, M.Si", "Statistic, Data Analysis", true));
-        dosenList.add(new Dosen(11, "Ramdani, S.Kom, M.Kom", "Internet Of Things, Robotic", true));
-        dosenList.add(new Dosen(12, "Muhammad Nur, S.Kom, M.Kom", "Software Engineering, Programming", true));
-        return dosenList;
+    public Dosen clone() throws CloneNotSupportedException {
+        return (Dosen) super.clone();
     }
 }
